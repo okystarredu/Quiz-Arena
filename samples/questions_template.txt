@@ -1,0 +1,29 @@
+1. Which organ pumps blood around the human body?
+A. Liver
+B. Heart
+C. Kidney
+D. Lung
+Answer: B
+Explanation: The heart pumps blood through the circulatory system.
+Category: Anatomy
+Time: 20
+
+2. What is the normal adult resting pulse range?
+A. 20-40 bpm
+B. 40-50 bpm
+C. 60-100 bpm
+D. 120-160 bpm
+Answer: C
+Explanation: A normal adult resting pulse is commonly 60 to 100 beats per minute.
+Category: Vital Signs
+Time: 30
+
+3. Which route delivers medicine directly into a vein?
+A. Intramuscular
+B. Subcutaneous
+C. Oral
+D. Intravenous
+Answer: D
+Explanation: Intravenous administration delivers medicine directly into a vein.
+Category: Pharmacology
+Time: 20

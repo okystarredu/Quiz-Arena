@@ -1,0 +1,27 @@
+UPLOAD TO GITHUB
+
+Upload every file and folder inside the extracted project folder, including:
+- public/
+- samples/
+- tests/
+- data/
+- server.js
+- package.json
+- package-lock.json
+- render.yaml
+- Dockerfile
+- auth.js
+- store.js
+- telegram.js
+- parsers.js
+- README.md
+- START_HERE.html
+- RENDER_SETUP.txt
+- .env.example
+- .gitignore
+
+DO NOT UPLOAD
+- The ZIP file itself
+- .env
+- node_modules/
+- Any file containing your bot token or passwords

@@ -1,0 +1,39 @@
+HERMIT QUIZ ARENA - SIMPLE RENDER SETUP
+
+IMPORTANT
+Render Free works for testing, but its local files are temporary. Imported quizzes and results can disappear after the service sleeps, restarts, or redeploys. For permanent storage, upgrade the web service and attach a persistent disk, or later move the data to a hosted database.
+
+UPLOAD TO GITHUB
+Upload every file and folder in this extracted folder.
+Do not upload the ZIP itself.
+Do not create or upload .env or node_modules.
+
+CREATE THE RENDER SERVICE
+1. Sign in at Render and connect your GitHub account.
+2. Click New, then Blueprint.
+3. Select the GitHub repository containing these files.
+4. Render will read render.yaml.
+5. Enter the requested secret values:
+   BOT_TOKEN: token from BotFather
+   BOT_USERNAME: bot username without @
+   ADMIN_PASSWORD: password you choose
+   PUBLIC_URL: initially enter https://placeholder.onrender.com
+6. Create the Blueprint and wait until the service is Live.
+7. Copy the real URL shown by Render, such as https://hermit-quiz-arena.onrender.com
+8. Open the service, choose Environment, replace PUBLIC_URL with the real URL, then Save and deploy.
+
+OPEN THE ADMIN PAGE
+https://YOUR-RENDER-URL/admin
+
+BOTFATHER
+Use /newapp or configure your bot's Main Mini App with the same Render URL.
+
+TELEGRAM GROUP
+Add the bot to the group and send:
+/quizsetup@YourBotUsername
+
+PERMANENT STORAGE ON PAID RENDER
+1. Upgrade the web service from Free.
+2. Add a disk mounted at /opt/render/project/src/data
+3. Change DATA_DIR to /opt/render/project/src/data
+4. Save and redeploy.

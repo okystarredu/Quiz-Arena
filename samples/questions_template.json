@@ -1,0 +1,13 @@
+{
+  "questions": [
+    {
+      "question": "Which organ pumps blood around the human body?",
+      "options": ["Liver", "Heart", "Kidney", "Lung"],
+      "correctIndex": 1,
+      "explanation": "The heart pumps blood through the circulatory system.",
+      "category": "Anatomy",
+      "difficulty": "Easy",
+      "timeSeconds": 20
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07111f">
+  <title>Hermit Quiz Arena — Control Room</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section id="loginView" class="card hero" style="max-width:460px;margin:8vh auto 0">
+      <div class="hero-icon">🔐</div>
+      <h1>Quiz Control Room</h1>
+      <p class="muted">Enter the ADMIN_PASSWORD you added in Render Environment.</p>
+      <div class="field" style="text-align:left"><label for="adminPassword">Password</label><input id="adminPassword" class="input" type="password" autocomplete="current-password"></div>
+      <button id="loginButton" class="btn primary" type="button" style="width:100%;margin-top:12px">Sign in</button>
+      <div id="loginMessage" class="notice hidden" style="margin-top:12px"></div>
+    </section>
+
+    <section id="adminView" class="hidden">
+      <header class="admin-header">
+        <div class="brand"><div class="brand-mark">🏆</div><div><h1>Hermit Quiz Arena</h1><p>Control room</p></div></div>
+        <button id="logoutButton" class="btn small-btn" type="button">Log out</button>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="dashboard" type="button">Dashboard</button>
+        <button class="tab" data-tab="questions" type="button">Question bank</button>
+        <button class="tab" data-tab="create" type="button">Create live quiz</button>
+        <button class="tab" data-tab="sessions" type="button">Sessions & results</button>
+      </nav>
+
+      <section id="tab-dashboard" class="section">
+        <div class="grid three">
+          <div class="card"><div class="small muted">Question sets</div><h2 id="metricSets">0</h2></div>
+          <div class="card"><div class="small muted">Quiz sessions</div><h2 id="metricSessions">0</h2></div>
+          <div class="card"><div class="small muted">Connected groups</div><h2 id="metricChats">0</h2></div>
+        </div>
+        <div class="card">
+          <h3>System status</h3>
+          <div id="systemStatus" class="notice pulse">Checking your bot and app settings…</div>
+        </div>
+        <div class="card">
+          <h3>Fast workflow</h3>
+          <p class="muted">1. Import a question file. 2. Create a session. 3. Announce it to your Telegram group. 4. Start the quiz.</p>
+          <div class="actions"><button class="btn primary go-tab" data-target="questions" type="button">Import questions</button><button class="btn go-tab" data-target="create" type="button">Create quiz</button></div>
+        </div>
+      </section>
+
+      <section id="tab-questions" class="section hidden">
+        <div class="card">
+          <h2>Import questions</h2>
+          <p class="muted">Use CSV, TXT, DOCX or JSON. A sample CSV is included in the download.</p>
+          <form id="importForm" class="grid two">
+            <div class="field"><label for="setName">Question set name</label><input id="setName" name="name" class="input" placeholder="Medical-Surgical Nursing"></div>
+            <div class="field"><label for="questionFile">Question file</label><input id="questionFile" name="file" class="input" type="file" accept=".csv,.txt,.docx,.json" required></div>
+            <div class="field" style="grid-column:1/-1"><label for="setDescription">Description (optional)</label><input id="setDescription" name="description" class="input" placeholder="Level 200 revision questions"></div>
+            <button class="btn primary" type="submit">Import question set</button>
+          </form>
+          <div id="importMessage" class="notice hidden" style="margin-top:12px"></div>
+        </div>
+        <div class="card">
+          <div class="list-head"><div><h2>Question bank</h2><p class="muted small">Open a set to review or correct questions.</p></div><button id="refreshSets" class="btn small-btn" type="button">Refresh</button></div>
+          <div id="setsList" class="list"></div>
+        </div>
+        <div id="editorCard" class="card hidden">
+          <div class="list-head"><div><h2 id="editorTitle">Edit set</h2><p id="editorCount" class="muted small"></p></div><button id="closeEditor" class="btn small-btn" type="button">Close</button></div>
+          <div class="field"><label for="editorSetName">Set name</label><input id="editorSetName" class="input"></div>
+          <div id="questionEditor" class="question-editor" style="margin-top:14px"></div>
+          <div class="actions" style="margin-top:14px"><button id="addQuestion" class="btn" type="button">Add question</button><button id="saveSet" class="btn primary" type="button">Save changes</button></div>
+          <div id="editorMessage" class="notice hidden" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <section id="tab-create" class="section hidden">
+        <div class="card">
+          <h2>Create a live quiz</h2>
+          <div class="grid two">
+            <div class="field"><label for="sessionSet">Question set</label><select id="sessionSet"></select></div>
+            <div class="field"><label for="sessionTitle">Quiz title</label><input id="sessionTitle" class="input" placeholder="Friday Nursing Challenge"></div>
+            <div class="field"><label for="questionCount">Number of questions</label><input id="questionCount" class="input" type="number" min="1" value="10"></div>
+            <div class="field"><label for="timerSeconds">Seconds per question</label><input id="timerSeconds" class="input" type="number" min="5" max="300" value="30"></div>
+            <div class="field"><label for="scoringMode">Scoring</label><select id="scoringMode"><option value="speed">Speed points (500–1000)</option><option value="classic">Classic (1 point)</option></select></div>
+            <div class="field"><label for="sessionChat">Telegram group</label><select id="sessionChat"><option value="">No group selected</option></select></div>
+          </div>
+          <div class="actions" style="margin-top:14px">
+            <label class="notice"><input id="shuffleQuestions" type="checkbox" checked> Random questions</label>
+            <label class="notice"><input id="shuffleAnswers" type="checkbox" checked> Shuffle answers</label>
+          </div>
+          <button id="createSession" class="btn primary" type="button" style="width:100%;margin-top:14px">Create lobby</button>
+          <div id="createMessage" class="notice hidden" style="margin-top:12px"></div>
+        </div>
+        <div id="createdSessionCard" class="card hidden">
+          <h2>Lobby created</h2>
+          <div class="metrics"><div class="metric"><b id="createdCode">—</b><span>Join code</span></div><div class="metric"><b id="createdQuestions">0</b><span>Questions</span></div><div class="metric"><b id="createdStatus">Lobby</b><span>Status</span></div></div>
+          <p class="muted small">Announce the quiz to the selected Telegram group, allow players to join, then press Start.</p>
+          <div class="actions"><button id="announceCreated" class="btn" type="button">Announce in group</button><button id="startCreated" class="btn success" type="button">Start quiz</button></div>
+        </div>
+      </section>
+
+      <section id="tab-sessions" class="section hidden">
+        <div class="card">
+          <div class="list-head"><div><h2>Sessions and results</h2><p class="muted small">Final results also appear in the connected Telegram group.</p></div><button id="refreshSessions" class="btn small-btn" type="button">Refresh</button></div>
+          <div id="sessionsList" class="list"></div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="/admin.js"></script>
+</body>
+</html>

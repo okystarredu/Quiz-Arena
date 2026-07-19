@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07111f">
+  <title>Hermit Quiz Arena</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+  <main class="player-shell">
+    <section id="authCard" class="card hero">
+      <div class="hero-icon">🏆</div>
+      <h1>Hermit Quiz Arena</h1>
+      <p class="muted">Timed quizzes, instant feedback and live rankings.</p>
+      <div id="authStatus" class="notice pulse">Connecting to Telegram…</div>
+      <div id="guestBox" class="hidden grid" style="margin-top:14px">
+        <div class="field"><label for="guestName">Browser test name</label><input id="guestName" class="input" maxlength="40" placeholder="Enter your name"></div>
+        <button id="guestLogin" class="btn primary" type="button">Continue in test mode</button>
+      </div>
+    </section>
+
+    <section id="joinCard" class="card hidden">
+      <div class="brand"><div class="brand-mark">🎮</div><div><h1>Join a quiz</h1><p>Enter the six-character code.</p></div></div>
+      <div class="field"><label for="quizCode">Quiz code</label><input id="quizCode" class="input" maxlength="6" autocomplete="off" placeholder="ABC123" style="text-transform:uppercase"></div>
+      <button id="joinButton" class="btn primary" type="button" style="width:100%;margin-top:12px">Join lobby</button>
+      <div id="joinMessage" class="notice hidden" style="margin-top:12px"></div>
+    </section>
+
+    <section id="lobbyCard" class="card hero hidden">
+      <div class="hero-icon pulse">⏳</div>
+      <span class="badge">LOBBY</span>
+      <h2 id="lobbyTitle" style="margin-top:12px"></h2>
+      <p id="lobbyMessage" class="muted">You are in. The host will begin shortly.</p>
+      <div class="metrics">
+        <div class="metric"><b id="lobbyPlayers">0</b><span>Players</span></div>
+        <div class="metric"><b id="lobbyQuestions">0</b><span>Questions</span></div>
+        <div class="metric"><b id="lobbyTimer">0s</b><span>Per question</span></div>
+      </div>
+    </section>
+
+    <section id="quizCard" class="card hidden">
+      <div class="topbar">
+        <div><div id="questionNumber" class="small muted"></div><strong id="scoreText">0 points</strong></div>
+        <div id="timerText" class="timer">00:30</div>
+      </div>
+      <div class="progress"><span id="timerBar"></span></div>
+      <div id="categoryText" class="small muted" style="margin-top:12px"></div>
+      <h2 id="questionText" class="question"></h2>
+      <div id="options" class="options"></div>
+      <div id="feedbackBox" class="feedback hidden" aria-live="polite"></div>
+      <div id="liveBoardWrap" class="hidden" style="margin-top:16px"><h3>Live top 3</h3><div id="liveLeaderboard" class="leaderboard"></div></div>
+    </section>
+
+    <section id="finalCard" class="card hidden">
+      <div class="hero" style="padding:6px 0 18px"><div class="hero-icon">🎉</div><h2>Quiz complete!</h2><p id="finalTitle" class="muted"></p></div>
+      <div class="metrics">
+        <div class="metric"><b id="finalRank">—</b><span>Your rank</span></div>
+        <div class="metric"><b id="finalScore">0</b><span>Points</span></div>
+        <div class="metric"><b id="finalAccuracy">0%</b><span>Accuracy</span></div>
+      </div>
+      <h3 style="margin-top:20px">Final leaderboard</h3>
+      <div id="finalLeaderboard" class="leaderboard"></div>
+    </section>
+  </main>
+  <div id="confetti" class="confetti"></div>
+  <script src="/player.js"></script>
+</body>
+</html>
