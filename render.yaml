@@ -5,10 +5,14 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
-    healthCheckPath: /api/health
+    healthCheckPath: /health
     envVars:
-      - key: NODE_VERSION
-        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /opt/render/project/src/data
+      - key: ALLOW_GUESTS
+        value: "true"
       - key: BOT_TOKEN
         sync: false
       - key: BOT_USERNAME
@@ -19,9 +23,3 @@ services:
         generateValue: true
       - key: PUBLIC_URL
         sync: false
-      - key: MINI_APP_SHORT_NAME
-        value: ""
-      - key: DATA_DIR
-        value: /tmp/hermit-data
-      - key: ALLOW_GUESTS
-        value: "false"
