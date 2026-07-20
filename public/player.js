@@ -1,8 +1,21 @@
 (() => {
-  const tg = window.Telegram?.WebApp;
-  if (tg) {
-    try { tg.ready(); tg.expand(); } catch {}
+  let tg = window.Telegram?.WebApp || null;
+
+  function refreshTelegramWebApp() {
+    tg = window.Telegram?.WebApp || tg;
+    return tg;
   }
+
+  function initialiseTelegramWebApp() {
+    const webApp = refreshTelegramWebApp();
+    if (!webApp) return;
+    try {
+      webApp.ready();
+      webApp.expand();
+    } catch {}
+  }
+
+  initialiseTelegramWebApp();
 
   const $ = id => document.getElementById(id);
   const screens = ['authCard', 'joinCard', 'lobbyCard', 'quizCard', 'finalCard'];
@@ -23,12 +36,27 @@
     el.classList.remove('hidden');
   }
 
+  function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  async function getTelegramInitData() {
+    /* Allow a moment for the Telegram bridge to initialise on slower devices. */
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const webApp = refreshTelegramWebApp();
+      if (webApp?.initData) return webApp.initData;
+      await delay(100);
+    }
+    return refreshTelegramWebApp()?.initData || '';
+  }
+
   async function api(url, options = {}) {
     const response = await fetch(url, {
       credentials: 'include',
       headers: { 'content-type': 'application/json', ...(options.headers || {}) },
       ...options
     });
+
     let data = {};
     try { data = await response.json(); } catch {}
     if (!response.ok) throw new Error(data.error || 'Request failed.');
@@ -37,15 +65,19 @@
 
   function startParam() {
     const params = new URLSearchParams(location.search);
-    return tg?.initDataUnsafe?.start_param || params.get('tgWebAppStartParam') || params.get('code') || '';
+    const webApp = refreshTelegramWebApp();
+    return webApp?.initDataUnsafe?.start_param || params.get('tgWebAppStartParam') || params.get('code') || '';
   }
 
   async function authenticate(guestName = '') {
     try {
+      initialiseTelegramWebApp();
+      const initData = guestName ? '' : await getTelegramInitData();
       const data = await api('/api/player/auth', {
         method: 'POST',
-        body: JSON.stringify({ initData: tg?.initData || '', guestName })
+        body: JSON.stringify({ initData, guestName })
       });
+
       const initialCode = startParam().trim().toUpperCase();
       $('quizCode').value = initialCode;
       show('joinCard');
@@ -64,8 +96,12 @@
     const code = $('quizCode').value.trim().toUpperCase();
     if (!code) return message($('joinMessage'), 'Enter the quiz code.', 'error');
     $('joinButton').disabled = true;
+
     try {
-      const state = await api('/api/player/join', { method: 'POST', body: JSON.stringify({ code }) });
+      const state = await api('/api/player/join', {
+        method: 'POST',
+        body: JSON.stringify({ code })
+      });
       currentCode = code;
       render(state);
       beginPolling();
@@ -183,6 +219,7 @@
     [...$('options').children].forEach(button => { button.disabled = true; });
     const selected = $('options').children[optionIndex];
     selected?.classList.add('selected');
+
     try {
       const result = await api(`/api/player/session/${encodeURIComponent(currentCode)}/answer`, {
         method: 'POST',
@@ -197,8 +234,9 @@
       markAnswer(optionIndex, result.correctIndex, result.correct);
       showFeedback(result, true);
       $('scoreText').textContent = `${result.score} ${latestState?.scoringMode === 'classic' ? 'points' : 'pts'}`;
-      if (tg?.HapticFeedback) {
-        try { tg.HapticFeedback.notificationOccurred(result.correct ? 'success' : 'error'); } catch {}
+      const webApp = refreshTelegramWebApp();
+      if (webApp?.HapticFeedback) {
+        try { webApp.HapticFeedback.notificationOccurred(result.correct ? 'success' : 'error'); } catch {}
       }
     } catch (error) {
       showFeedback({ correct: false, points: 0, explanation: error.message, correctIndex: -1 }, false, true);
@@ -222,7 +260,7 @@
     const heading = isError ? 'Answer not recorded' : correct ? 'Correct!' : feedback.correct === false ? 'Not quite' : 'Time is up';
     const icon = isError ? '⚠️' : correct ? '🎉' : '❌';
     const points = correct ? `<p><strong>+${feedback.points} points</strong>${feedback.streak > 1 ? ` • 🔥 ${feedback.streak} streak` : ''}</p>` : '';
-    const explanation = feedback.explanation ? `<p class="muted small"></p>` : '';
+    const explanation = feedback.explanation ? '<p class="muted small"></p>' : '';
     box.innerHTML = `<div class="feedback-icon">${icon}</div><h3>${heading}</h3>${points}${explanation}`;
     if (feedback.explanation) box.querySelector('p.muted').textContent = feedback.explanation;
     if (correct && animate) burstConfetti();

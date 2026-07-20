@@ -6,7 +6,7 @@ const path = require('path');
 const { loadStore, updateStore } = require('./store');
 const { parseQuestionFile } = require('./parsers');
 const { validateTelegramInitData, createAdminCookie, verifyAdminCookie } = require('./auth');
-const { sendJoinMessage, sendFinalLeaderboard, setWebhook, getMe, telegramApi, miniAppLink, webhookSecret } = require('./telegram');
+const { sendJoinMessage, sendFinalLeaderboard, setWebhook, setMenuButton, getMe, telegramApi, miniAppLink, publicAppUrl, parseStartCode, webhookSecret } = require('./telegram');
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 8 * 1024 * 1024 } });
@@ -433,12 +433,29 @@ app.get('/api/admin/sessions/:id/results.csv', requireAdmin, (req, res) => {
 });
 
 app.post('/api/player/auth', (req, res) => {
-  let player = validateTelegramInitData(req.body.initData, process.env.BOT_TOKEN);
+  const initData = String(req.body.initData || '').trim();
+  let player = validateTelegramInitData(initData, process.env.BOT_TOKEN);
+
   if (!player && String(process.env.ALLOW_GUESTS).toLowerCase() === 'true') {
     const guestName = String(req.body.guestName || '').trim().slice(0, 40);
     if (guestName) player = { id: `guest_${crypto.createHash('sha1').update(`${guestName}:${req.ip}`).digest('hex').slice(0, 16)}`, name: guestName, username: '', guest: true };
   }
-  if (!player) return res.status(401).json({ error: 'Telegram sign-in failed. Please open the quiz from the Telegram bot.' });
+
+  if (!player) {
+    console.warn('Telegram authentication rejected.', {
+      initDataPresent: Boolean(initData),
+      initDataLength: initData.length,
+      hashPresent: initData.includes('hash='),
+      userPresent: initData.includes('user='),
+      botTokenPresent: Boolean(String(process.env.BOT_TOKEN || '').trim())
+    });
+
+    const error = initData
+      ? 'Telegram sign-in data could not be verified. Close this page and open it again using the newest button sent by the bot.'
+      : 'Telegram did not provide sign-in data. Close this page, return to the private bot chat and press the newest “Open Quiz Arena” button.';
+    return res.status(401).json({ error });
+  }
+
   res.cookie(PLAYER_COOKIE, signPlayer(player), {
     httpOnly: true,
     sameSite: 'lax',
@@ -555,11 +572,16 @@ app.post('/telegram/webhook', async (req, res) => {
         text: '✅ This group is now connected to BlazeEducation Quiz Arena. Create and announce quizzes from the admin page.'
       });
     } else if (command === '/start' && message.chat.type === 'private') {
-      const startParameter = text.split(/\s+/)[1] || '';
-      const appUrl = miniAppLink(startParameter);
+      const startParameter = text.trim().split(/\s+/)[1] || '';
+      const quizCode = parseStartCode(startParameter);
+      const appUrl = publicAppUrl(quizCode);
+      const welcomeText = quizCode
+        ? `Welcome to BlazeEducation Quiz Arena! Quiz code: ${quizCode}. Tap below to join.`
+        : 'Welcome to BlazeEducation Quiz Arena! Tap below to open the quiz app.';
+
       await telegramApi('sendMessage', {
         chat_id: message.chat.id,
-        text: 'Welcome to BlazeEducation Quiz Arena! Tap below to open the quiz app.',
+        text: welcomeText,
         reply_markup: {
           inline_keyboard: [[{
             text: '🎮 Open Quiz Arena',
@@ -597,6 +619,13 @@ app.listen(PORT, '0.0.0.0', async () => {
       console.log('Telegram webhook configured.');
     } catch (error) {
       console.error('Webhook setup failed:', error.message);
+    }
+
+    try {
+      await setMenuButton();
+      console.log('Telegram menu button configured.');
+    } catch (error) {
+      console.error('Menu button setup failed:', error.message);
     }
   }
 });
