@@ -172,8 +172,12 @@ function publicSessionState(session, playerId) {
       number: state.index + 1,
       text: q.question,
       options: q.options,
-      category: q.category,
+      subject: q.subject,
+      topic: q.topic || q.category,
+      category: q.category || q.topic,
       difficulty: q.difficulty,
+      marks: q.marks || 1,
+      imageUrl: q.imageUrl || '',
       questionStartedAt: state.questionStartedAt,
       answerEndsAt: state.answerEndsAt,
       feedbackEndsAt: state.feedbackEndsAt,
@@ -219,7 +223,7 @@ function csvEscape(value) {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-app.get('/health', (req, res) => res.json({ ok: true, name: 'BlazeEducation Quiz Arena', version: '0.2.0' }));
+app.get('/health', (req, res) => res.json({ ok: true, name: 'BlazeEducation Quiz Arena', version: '0.3.0' }));
 app.get('/api/public/config', (req, res) => res.json({ allowGuests: String(process.env.ALLOW_GUESTS).toLowerCase() === 'true' }));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
@@ -496,10 +500,11 @@ app.post('/api/player/session/:code/answer', requirePlayer, (req, res) => {
       const correct = optionIndex === question.correctIndex;
       let points = 0;
       if (correct) {
-        if (session.scoringMode === 'classic') points = 1;
+        const marks = Math.max(1, Number(question.marks || 1));
+        if (session.scoringMode === 'classic') points = marks;
         else {
           const duration = questionDurationMs(question, session);
-          points = Math.max(500, Math.min(1000, 500 + Math.round(500 * (1 - responseMs / duration))));
+          points = Math.max(500, Math.min(1000, 500 + Math.round(500 * (1 - responseMs / duration)))) * marks;
         }
       }
       participant.answers[question.id] = { optionIndex, correct, points, responseMs, answeredAt: new Date().toISOString() };

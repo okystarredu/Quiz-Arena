@@ -109,3 +109,15 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 18px 0; }
   .admin-header { align-items: flex-start; }
   .editor-options { grid-template-columns: 1fr; }
 }
+
+
+.question-image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 16px;
+  margin: 14px 0 6px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+}
+.option-actions { gap: 8px; }

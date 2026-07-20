@@ -11,18 +11,18 @@ function normaliseQuestion(raw, index) {
   let options = raw.options;
   if (!Array.isArray(options)) {
     options = [
-      raw.OptionA ?? raw.optionA ?? raw.A,
-      raw.OptionB ?? raw.optionB ?? raw.B,
-      raw.OptionC ?? raw.optionC ?? raw.C,
-      raw.OptionD ?? raw.optionD ?? raw.D,
-      raw.OptionE ?? raw.optionE ?? raw.E,
-      raw.OptionF ?? raw.optionF ?? raw.F
+      raw.OptionA ?? raw['Option A'] ?? raw.optionA ?? raw.A,
+      raw.OptionB ?? raw['Option B'] ?? raw.optionB ?? raw.B,
+      raw.OptionC ?? raw['Option C'] ?? raw.optionC ?? raw.C,
+      raw.OptionD ?? raw['Option D'] ?? raw.optionD ?? raw.D,
+      raw.OptionE ?? raw['Option E'] ?? raw.optionE ?? raw.E,
+      raw.OptionF ?? raw['Option F'] ?? raw.optionF ?? raw.F
     ].map(cleanText).filter(Boolean);
   } else {
     options = options.map(cleanText).filter(Boolean);
   }
 
-  let correct = raw.correctIndex ?? raw.correct ?? raw.CorrectAnswer ?? raw.answer ?? raw.Answer;
+  let correct = raw.correctIndex ?? raw.correct ?? raw.CorrectAnswer ?? raw['Correct Answer'] ?? raw.answer ?? raw.Answer;
   if (typeof correct === 'string') {
     const letter = correct.trim().toUpperCase();
     if (/^[A-F]$/.test(letter)) correct = letter.charCodeAt(0) - 65;
@@ -37,7 +37,8 @@ function normaliseQuestion(raw, index) {
     throw new Error(`Question ${index + 1} has an invalid correct answer.`);
   }
 
-  const suppliedTime = Number(raw.timeSeconds || raw.TimeSeconds || raw.time || raw.Time || 0);
+  const suppliedTime = Number(raw.timeSeconds || raw.TimeSeconds || raw['Time Seconds'] || raw.time || raw.Time || raw['Time Limit'] || 0);
+  const suppliedMarks = Number(raw.marks || raw.Marks || raw.points || raw.Points || 1);
 
   return {
     id: `q_${Date.now()}_${index}_${Math.random().toString(36).slice(2, 8)}`,
@@ -45,9 +46,13 @@ function normaliseQuestion(raw, index) {
     options,
     correctIndex: correct,
     explanation: cleanText(raw.explanation || raw.Explanation),
-    category: cleanText(raw.category || raw.Category),
+    subject: cleanText(raw.subject || raw.Subject),
+    topic: cleanText(raw.topic || raw.Topic || raw.category || raw.Category),
+    category: cleanText(raw.category || raw.Category || raw.topic || raw.Topic),
     difficulty: cleanText(raw.difficulty || raw.Difficulty || 'Medium'),
-    timeSeconds: suppliedTime > 0 ? Math.max(5, Math.min(300, suppliedTime)) : 0
+    timeSeconds: suppliedTime > 0 ? Math.max(5, Math.min(300, suppliedTime)) : 0,
+    marks: Number.isFinite(suppliedMarks) && suppliedMarks > 0 ? Math.max(1, Math.min(100, suppliedMarks)) : 1,
+    imageUrl: cleanText(raw.imageUrl || raw.ImageUrl || raw['Image URL'] || raw.image || raw.Image)
   };
 }
 
@@ -83,8 +88,16 @@ function parsePlainText(text) {
       if (explanation) { raw.explanation = explanation[1].trim(); continue; }
       const time = line.match(/^Time(?:Seconds)?\s*:\s*(\d+)/i);
       if (time) { raw.timeSeconds = Number(time[1]); continue; }
-      const category = line.match(/^Category\s*:\s*(.+)$/i);
-      if (category) { raw.category = category[1].trim(); continue; }
+      const subject = line.match(/^Subject\s*:\s*(.+)$/i);
+      if (subject) { raw.subject = subject[1].trim(); continue; }
+      const topic = line.match(/^(?:Topic|Category)\s*:\s*(.+)$/i);
+      if (topic) { raw.topic = topic[1].trim(); continue; }
+      const difficulty = line.match(/^Difficulty\s*:\s*(.+)$/i);
+      if (difficulty) { raw.difficulty = difficulty[1].trim(); continue; }
+      const marks = line.match(/^(?:Marks|Points)\s*:\s*(\d+(?:\.\d+)?)/i);
+      if (marks) { raw.marks = Number(marks[1]); continue; }
+      const image = line.match(/^Image(?: URL)?\s*:\s*(.+)$/i);
+      if (image) { raw.imageUrl = image[1].trim(); continue; }
       if (raw.explanation) raw.explanation += ` ${line}`;
     }
     questions.push(normaliseQuestion(raw, questions.length));

@@ -121,14 +121,28 @@
         <div class="list-head"><strong>Question ${index + 1}</strong><button class="btn small-btn danger remove-question" type="button">Remove</button></div>
         <div class="field" style="margin-top:9px"><label>Question</label><textarea class="question-text" rows="2"></textarea></div>
         <div class="editor-options"></div>
+        <div class="actions option-actions" style="margin-top:9px">
+          <button class="btn small-btn add-option" type="button">Add option</button>
+          <button class="btn small-btn remove-option" type="button">Remove last option</button>
+        </div>
         <div class="grid two" style="margin-top:9px">
           <div class="field"><label>Correct answer</label><select class="correct-answer"></select></div>
-          <div class="field"><label>Time override (0 = session timer)</label><input class="input question-time" type="number" min="0" max="300"></div>
+          <div class="field"><label>Time limit in seconds (0 = session timer)</label><input class="input question-time" type="number" min="0" max="300"></div>
+          <div class="field"><label>Subject</label><input class="input subject"></div>
+          <div class="field"><label>Topic</label><input class="input topic"></div>
+          <div class="field"><label>Difficulty</label><select class="difficulty"><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+          <div class="field"><label>Marks</label><input class="input marks" type="number" min="1" max="100"></div>
         </div>
+        <div class="field" style="margin-top:9px"><label>Image URL (optional)</label><input class="input image-url" type="url" placeholder="https://example.com/image.jpg"></div>
         <div class="field" style="margin-top:9px"><label>Explanation (optional)</label><textarea class="explanation" rows="2"></textarea></div>`;
       row.querySelector('.question-text').value = question.question;
       row.querySelector('.explanation').value = question.explanation || '';
       row.querySelector('.question-time').value = question.timeSeconds || 0;
+      row.querySelector('.subject').value = question.subject || '';
+      row.querySelector('.topic').value = question.topic || question.category || '';
+      row.querySelector('.difficulty').value = question.difficulty || 'Medium';
+      row.querySelector('.marks').value = question.marks || 1;
+      row.querySelector('.image-url').value = question.imageUrl || '';
       const optionsContainer = row.querySelector('.editor-options');
       const correctSelect = row.querySelector('.correct-answer');
       question.options.forEach((option, optionIndex) => {
@@ -143,6 +157,21 @@
         correctSelect.appendChild(opt);
       });
       correctSelect.value = String(question.correctIndex);
+      row.querySelector('.add-option').addEventListener('click', () => {
+        captureEditor();
+        const target = editingSet.questions[index];
+        if (target.options.length >= 6) return notice($('editorMessage'), 'A question can have at most 6 options.', 'error');
+        target.options.push(`Option ${String.fromCharCode(65 + target.options.length)}`);
+        renderEditorQuestions();
+      });
+      row.querySelector('.remove-option').addEventListener('click', () => {
+        captureEditor();
+        const target = editingSet.questions[index];
+        if (target.options.length <= 2) return notice($('editorMessage'), 'A question must have at least 2 options.', 'error');
+        target.options.pop();
+        if (target.correctIndex >= target.options.length) target.correctIndex = 0;
+        renderEditorQuestions();
+      });
       row.querySelector('.remove-question').addEventListener('click', () => {
         if (editingSet.questions.length <= 1) return notice($('editorMessage'), 'A set must contain at least one question.', 'error');
         captureEditor();
@@ -163,6 +192,12 @@
       options: [...row.querySelectorAll('.option-text')].map(input => input.value.trim()).filter(Boolean),
       correctIndex: Number(row.querySelector('.correct-answer').value),
       explanation: row.querySelector('.explanation').value.trim(),
+      subject: row.querySelector('.subject').value.trim(),
+      topic: row.querySelector('.topic').value.trim(),
+      category: row.querySelector('.topic').value.trim(),
+      difficulty: row.querySelector('.difficulty').value,
+      marks: Number(row.querySelector('.marks').value || 1),
+      imageUrl: row.querySelector('.image-url').value.trim(),
       timeSeconds: Number(row.querySelector('.question-time').value || 0)
     }));
   }
@@ -193,8 +228,12 @@
       options: ['Option A', 'Option B', 'Option C', 'Option D'],
       correctIndex: 0,
       explanation: '',
+      subject: '',
+      topic: '',
       category: '',
       difficulty: 'Medium',
+      marks: 1,
+      imageUrl: '',
       timeSeconds: 0
     });
     renderEditorQuestions();

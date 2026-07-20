@@ -118,7 +118,16 @@
     const q = state.question;
     $('questionNumber').textContent = `Question ${q.number} of ${state.questionCount}`;
     $('scoreText').textContent = `${state.me?.score || 0} ${state.scoringMode === 'classic' ? 'points' : 'pts'}`;
-    $('categoryText').textContent = [q.category, q.difficulty].filter(Boolean).join(' • ');
+    $('categoryText').textContent = [q.subject, q.topic || q.category, q.difficulty, q.marks ? `${q.marks} mark${Number(q.marks) === 1 ? '' : 's'}` : ''].filter(Boolean).join(' • ');
+    const image = $('questionImage');
+    if (q.imageUrl) {
+      image.src = q.imageUrl;
+      image.classList.remove('hidden');
+      image.onerror = () => image.classList.add('hidden');
+    } else {
+      image.removeAttribute('src');
+      image.classList.add('hidden');
+    }
     $('questionText').textContent = q.text;
 
     if (lastQuestionId !== q.id) {
