@@ -555,26 +555,19 @@ app.post('/telegram/webhook', async (req, res) => {
         text: '✅ This group is now connected to BlazeEducation Quiz Arena. Create and announce quizzes from the admin page.'
       });
     } else if (command === '/start' && message.chat.type === 'private') {
-  const startParameter = text.split(/\s+/)[1] || '';
-  const appUrl = miniAppLink(startParameter);
-
-  await telegramApi('sendMessage', {
-    chat_id: message.chat.id,
-    text: 'Welcome to BlazeEducation Quiz Arena! Tap below to open the quiz app.',
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
+      const startParameter = text.split(/\s+/)[1] || '';
+      const appUrl = miniAppLink(startParameter);
+      await telegramApi('sendMessage', {
+        chat_id: message.chat.id,
+        text: 'Welcome to BlazeEducation Quiz Arena! Tap below to open the quiz app.',
+        reply_markup: {
+          inline_keyboard: [[{
             text: '🎮 Open Quiz Arena',
-            web_app: {
-              url: appUrl
-            }
-          }
-        ]
-      ]
+            web_app: { url: appUrl }
+          }]]
+        }
+      });
     }
-  });
-}
   } catch (error) {
     console.error('Webhook error:', error.message);
   }
