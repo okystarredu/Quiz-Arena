@@ -3,16 +3,12 @@ services:
     name: hermit-quiz-arena
     runtime: node
     plan: free
-    buildCommand: npm install
-    startCommand: npm start
-    healthCheckPath: /health
+    buildCommand: rm -rf node_modules package-lock.json && npm install --omit=dev --no-package-lock
+    startCommand: node server.js
+    healthCheckPath: /api/health
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: DATA_DIR
-        value: /opt/render/project/src/data
-      - key: ALLOW_GUESTS
-        value: "true"
+      - key: NODE_VERSION
+        value: "20.20.0"
       - key: BOT_TOKEN
         sync: false
       - key: BOT_USERNAME
@@ -23,3 +19,9 @@ services:
         generateValue: true
       - key: PUBLIC_URL
         sync: false
+      - key: MINI_APP_SHORT_NAME
+        value: ""
+      - key: DATA_DIR
+        value: /tmp/hermit-data
+      - key: ALLOW_GUESTS
+        value: "false"
