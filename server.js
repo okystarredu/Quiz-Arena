@@ -219,7 +219,7 @@ function csvEscape(value) {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-app.get('/health', (req, res) => res.json({ ok: true, name: 'Hermit Quiz Arena', version: '0.2.0' }));
+app.get('/health', (req, res) => res.json({ ok: true, name: 'BlazeEducation Quiz Arena', version: '0.2.0' }));
 app.get('/api/public/config', (req, res) => res.json({ allowGuests: String(process.env.ALLOW_GUESTS).toLowerCase() === 'true' }));
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
@@ -547,13 +547,13 @@ app.post('/telegram/webhook', async (req, res) => {
       });
       await telegramApi('sendMessage', {
         chat_id: message.chat.id,
-        text: '✅ This group is now connected to Hermit Quiz Arena. Create and announce quizzes from the admin page.'
+        text: '✅ This group is now connected to BlazeEducation Quiz Arena. Create and announce quizzes from the admin page.'
       });
     } else if (command === '/start' && message.chat.type === 'private') {
       const url = miniAppLink('');
       await telegramApi('sendMessage', {
         chat_id: message.chat.id,
-        text: 'Welcome to Hermit Quiz Arena! Tap below to open the quiz app.',
+        text: 'Welcome to BlazeEducation Quiz Arena! Tap below to open the quiz app.',
         reply_markup: { inline_keyboard: [[{ text: '🎮 Open Quiz Arena', url }]] }
       });
     }
@@ -579,7 +579,7 @@ setInterval(() => {
 }, 1500).unref();
 
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`Hermit Quiz Arena running on port ${PORT}`);
+  console.log(`BlazeEducation Quiz Arena running on port ${PORT}`);
   if (process.env.PUBLIC_URL && process.env.BOT_TOKEN) {
     try {
       await setWebhook();
