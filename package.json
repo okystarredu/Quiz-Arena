@@ -1,6 +1,6 @@
 {
   "name": "hermit-quiz-arena",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "private": true,
   "description": "Timed Telegram Mini App quizzes with bulk question import, animations, scoring and leaderboards.",
   "main": "server.js",
@@ -10,13 +10,13 @@
     "test": "node tests/smoke.test.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": "20.x"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.7",
-    "csv-parse": "^5.6.0",
-    "express": "^5.1.0",
-    "mammoth": "^1.9.1",
-    "multer": "^2.0.2"
+    "cookie-parser": "1.4.7",
+    "csv-parse": "5.6.0",
+    "express": "5.1.0",
+    "mammoth": "1.9.1",
+    "multer": "2.0.2"
   }
 }
